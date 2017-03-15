@@ -16,39 +16,27 @@ module construtora
 
 --Assinaturas
 sig Construtora {
-	predio : one Predio,
-	condominio : one CondominioPopular,
-	estadio : one Estadio
+	contratos : set Contrato
 }
 
 sig Contrato {
 	contrucao : one Construcao
 }
 
-abstract sig Construcao {
+abstract sig Construcao {}
+sig Predio extends Construcao {}
+sig CondominioPopular extends Construcao {}
+sig Estadio extends Construcao {}
 
+abstract sig Equipe {}
+sig EquipePedreiros extends Equipe {}
+sig EquipePintores extends Equipe {}
+
+fact {
+	all construtora:Construtora | #(construtora.contratos) = 3
+	all contrato:Contrato | one contrato.~contratos
 }
 
-sig Predio extends Construcao {
+pred show(){}
 
-}
-
-sig CondominioPopular extends Construcao {
-
-}
-
-sig Estadio extends Construcao {
-
-}
-
-abstract sig Equipe {
-
-}
-
-sig EquipePedreiros extends Equipe {
-
-}
-
-sig EquipePintores extends Equipe {
-
-}
+run show for 3	

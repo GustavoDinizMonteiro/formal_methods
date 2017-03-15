@@ -15,9 +15,14 @@ Cliente: Gileade
 module construtora
 
 --Assinaturas
+sig Construtora {
+	predio : one Predio,
+	condominio : one CondominioPopular,
+	estadio : one Estadio
+}
 
 sig Contrato {
-	
+	contrucao : one Construcao
 }
 
 abstract sig Construcao {
@@ -36,3 +41,14 @@ sig Estadio extends Construcao {
 
 }
 
+abstract sig Equipe {
+
+}
+
+sig EquipePedreiros extends Equipe {
+
+}
+
+sig EquipePintores extends Equipe {
+
+}

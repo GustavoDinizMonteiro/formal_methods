@@ -43,9 +43,7 @@ abstract sig Construcao {
 	pedreiros : one EquipePedreiros,
 	pintores : one EquipePintores
 }
-sig Predio extends Construcao {}
-sig CondominioPopular extends Construcao {}
-sig Estadio extends Construcao {}
+one sig Predio, CondominioPopular,  Estadio extends Construcao {}
 
 abstract sig Engenheiro {}
 sig EngenheiroCivil extends Engenheiro{}

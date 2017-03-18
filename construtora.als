@@ -43,7 +43,7 @@ sig Contrato {
 }
 
 abstract sig Construcao {
-	pintores : one EquipePintores,
+	pintores : lone EquipePintores,
 	pedreiros : some EquipePedreiros,
 	engenheiros: lone EquipeEngenheiros	
 }
@@ -58,7 +58,8 @@ one sig EquipeEngenheiros {
 }
 
 abstract sig Equipe {}
-sig EquipePedreiros, EquipePintores extends Equipe {}
+sig EquipePedreiros extends Equipe {}
+one sig EquipePintores extends Equipe {}
 
 ///////////////////////////////////////////////.....FATOS......///////////////////////////////////////////////
 
@@ -82,17 +83,21 @@ fact {
 fact {
 	all e:EngenheiroEletricista | one e.~engenheiroEletricista
 	all e:EngenheiroCivil | one e.~engenheiroCivil
-	
-	//all e:EngenheiroEletricista | one e.~eEletricista
 }
 
 fact {
-	all e:EquipePintores | one e.~equipePintores
+	one e:EquipePintores | one e.~equipePintores
+	one e:EquipePintores | one e.~pintores
 }
 
 fact {
-	//all c:Construcao | one c.engenheiros
 	one e:EquipeEngenheiros | one e.~engenheiros
+}
+
+fact {
+	all c:Construcao | (one c.engenheiros and #(c.pintores)=0) 
+				or (#(c.engenheiros)=0 and one c.pintores)
+				or (#(c.engenheiros)=0 and #(c.pintores)=0)
 }
 
 ///////////////////////////////////////////////.....ASSERTS......///////////////////////////////////////////////

@@ -45,13 +45,17 @@ sig Contrato {
 abstract sig Construcao {
 	pintores : one EquipePintores,
 	pedreiros : some EquipePedreiros,
-	eCivil : one EngenheiroCivil,
-	eEletricista : one EngenheiroEletricista	
+	engenheiros: lone EquipeEngenheiros	
 }
 one sig Predio, CondominioPopular,  Estadio extends Construcao {}
 
 abstract sig Engenheiro {}
 sig EngenheiroCivil, EngenheiroEletricista extends Engenheiro{}
+
+one sig EquipeEngenheiros {
+	civil: one EngenheiroCivil,
+	eletricista: one EngenheiroEletricista
+}
 
 abstract sig Equipe {}
 sig EquipePedreiros, EquipePintores extends Equipe {}
@@ -79,7 +83,7 @@ fact {
 	all e:EngenheiroEletricista | one e.~engenheiroEletricista
 	all e:EngenheiroCivil | one e.~engenheiroCivil
 	
-	all e:EngenheiroEletricista | one e.~eEletricista
+	//all e:EngenheiroEletricista | one e.~eEletricista
 }
 
 fact {
@@ -87,8 +91,8 @@ fact {
 }
 
 fact {
-	all c:Construcao | (one c.eCivil and one c.eEletricista) or (#(c.eCivil)=0 and #(c.eEletricista)=0)
-	
+	//all c:Construcao | one c.engenheiros
+	one e:EquipeEngenheiros | one e.~engenheiros
 }
 
 ///////////////////////////////////////////////.....ASSERTS......///////////////////////////////////////////////

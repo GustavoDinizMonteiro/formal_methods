@@ -30,9 +30,12 @@ Cliente: Gileade
 module construtora
 
 ///////////////////////////////////////////////.....ASSINATURAS......///////////////////////////////////////////////
-sig Construtora {
-	contratos : set Contrato
-	
+one sig Construtora {
+	contratos : set Contrato,
+	equipePedreiros : some EquipePedreiros,
+	engenheiroCivil : one EngenheiroCivil,
+	engenheiroEletricista : one EngenheiroEletricista,
+	equipePintores : one EquipePintores
 }
 
 sig Contrato {
@@ -40,38 +43,60 @@ sig Contrato {
 }
 
 abstract sig Construcao {
-	pedreiros : one EquipePedreiros,
-	pintores : one EquipePintores
+	pintores : one EquipePintores,
+	pedreiros : some EquipePedreiros,
+	eCivil : one EngenheiroCivil,
+	eEletricista : one EngenheiroEletricista	
 }
 one sig Predio, CondominioPopular,  Estadio extends Construcao {}
 
 abstract sig Engenheiro {}
-sig EngenheiroCivil extends Engenheiro{}
-sig EngenheiroEletricista extends Engenheiro{}
+sig EngenheiroCivil, EngenheiroEletricista extends Engenheiro{}
 
 abstract sig Equipe {}
-sig EquipePedreiros extends Equipe {}
-sig EquipePintores extends Equipe {}
+sig EquipePedreiros, EquipePintores extends Equipe {}
 
 ///////////////////////////////////////////////.....FATOS......///////////////////////////////////////////////
 
 fact {
-	all c : Construtora | some c.contratos
-	all c : Contrato | one c.~contratos
+	all c : Construtora | #(c.contratos) = 3
+	all c : Contrato | one c.~contratos	
+}
+
+fact {
+	all c:Predio | one c.~construcao
+	all c:CondominioPopular | one c.~construcao
+	all c:Estadio | one c.~construcao
+}
+
+fact {
+	#(EquipePedreiros) = 4
+	all e:EquipePedreiros | one e.~equipePedreiros
+	all e:EquipePedreiros | one e.~pedreiros
+}
+
+fact {
+	all e:EngenheiroEletricista | one e.~engenheiroEletricista
+	all e:EngenheiroCivil | one e.~engenheiroCivil
+	
+	all e:EngenheiroEletricista | one e.~eEletricista
+}
+
+fact {
+	all e:EquipePintores | one e.~equipePintores
+}
+
+fact {
+	all c:Construcao | (one c.eCivil and one c.eEletricista) or (#(c.eCivil)=0 and #(c.eEletricista)=0)
 	
 }
 
 ///////////////////////////////////////////////.....ASSERTS......///////////////////////////////////////////////
 
 assert {
-	all c : Construtora | #(c.contratos) = 3
-}
-
-assert{
-	//garantir que o Contrato tenha uma instancia de cada tipo de Construção
-	//all c : Contrato | c.construcao
+	one c : Construtora | #(c.contratos) = 3
 }
 
 pred show(){}
 
-run show for 3	
+run show for 5

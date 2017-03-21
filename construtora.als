@@ -29,7 +29,11 @@ Cliente: Gileade
 
 module construtora
 
+open util/ordering[Time]
+
 -------------------------------------ASSINATURAS-------------------------------------
+sig Time {}
+
 one sig Construtora {
 	contratos : set Contrato,
 	equipePedreiros : some EquipePedreiros,
@@ -43,9 +47,9 @@ sig Contrato {
 }
 
 abstract sig Construcao {
-	pintores : lone EquipePintores,
+	pintores : EquipePintores lone -> Time,
 	pedreiros : some EquipePedreiros,
-	engenheiros: lone EquipeEngenheiros	
+	engenheiros: EquipeEngenheiros lone -> Time	
 }
 one sig Predio, CondominioPopular,  Estadio extends Construcao {}
 
@@ -87,11 +91,11 @@ fact {
 
 fact {
 	one e:EquipePintores | one e.~equipePintores
-	one e:EquipePintores | one e.~pintores
+	--one e:EquipePintores | one e.~pintores
 }
 
 fact {
-	one e:EquipeEngenheiros | one e.~engenheiros
+	--one e:EquipeEngenheiros | one e.~engenheiros
 }
 
 fact {
@@ -99,8 +103,38 @@ fact {
 /*
 	all c:Construcao | (one c.engenheiros and #(c.pintores)=0) 
 				or (#(c.engenheiros)=0 and one c.pintores)
-				or (#(c.engenheiros)=0 and #(c.pintores)=0)*/
+				or (#(c.engenheiros)=0 and #(c.pintores)=0)
+*/
 }
+
+fact traces {
+	init[first]
+	all pre: Time-last | let pos = pre.next |
+
+	some c:Construcao, ep: EquipePintores | 
+		addEqPintores[c, ep, pre, pos]
+
+}
+
+-------------------------------------PREDICADOS-------------------------------------
+
+pred init [t: Time]{
+	no (Construcao.pintores).t
+}
+
+pred addEqPintores[c:Construcao, ep:EquipePintores, t: Time, t':Time]{
+	ep !in (c.pintores).t
+	(c.pintores).t' = (c.pintores).t + ep
+}
+
+pred addEqEngenheiros[c:Construcao, ee:EquipeEngenheiros, t: Time, t':Time]{
+	ee !in (c.engenheiros).t
+	(c.engenheiros).t' = (c.engenheiros).t + ee
+}
+
+
+
+
 
 -------------------------------------ASSERTS-------------------------------------
 
@@ -171,4 +205,4 @@ check construcaoTest for 10
 
 pred show(){}
 
-run show for 5
+run show for 10

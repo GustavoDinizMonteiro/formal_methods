@@ -102,9 +102,52 @@ fact {
 
 ///////////////////////////////////////////////.....ASSERTS......///////////////////////////////////////////////
 
-assert {
-	one c : Construtora | #(c.contratos) = 3
+assert contrutoraTest{
+	// Só existe uma construtora.
+	#(Construtora) = 1
+
+	// A construtora terá 3 contratos.
+	all c : Construtora | #(c.contratos) = 3
+
+	//A construtora conta com 4 equipes de pedreiros.
+	all c: Construtora | #(c.equipePedreiros)=4
+
+	//A construtora conta com 1 engenheiro civil
+	all c: Construtora | #(c.engenheiroCivil) = 1	
+
+	//A construtora conta com 1 engenheiro eletricista.
+	all c: Construtora | #(c.engenheiroEletricista) = 1	
+
+	//A construtora conta com 1 equipe de pintores.
+	all c: Construtora | #(c.equipePintores) = 1
+
 }
+
+// toda obra possui pelo menos uma equipe de pedreiros trabalhando
+assert peloMenosUmaEqPedreirosPorObra{
+	all c: Construcao | #(c.pedreiros) > 0
+}
+
+
+
+
+/*
+Haverá um contrato para construção de um prédio.
+Haverá um contrato para construção de um condomínio popular.
+Haverá um contrato para construção de um estádio de futebol.
+A construtora conta com 4 equipes de pedreiros.
+A construtora conta com 1 engenheiro civil
+A construtora conta com 1 engenheiro eletricista.
+A construtora conta com 1 equipe de pintores.
+*/
+
+///////////////////////////////////////////////.....MAIN......///////////////////////////////////////////////
+
+
+check contrutoraTest for 10
+
+check peloMenosUmaEqPedreirosPorObra for 10
+
 
 pred show(){}
 

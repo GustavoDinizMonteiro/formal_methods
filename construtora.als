@@ -95,9 +95,11 @@ fact {
 }
 
 fact {
+	no c:Construcao | #(c.engenheiros) > 0 and #(c.pintores) > 0
+/*
 	all c:Construcao | (one c.engenheiros and #(c.pintores)=0) 
 				or (#(c.engenheiros)=0 and one c.pintores)
-				or (#(c.engenheiros)=0 and #(c.pintores)=0)
+				or (#(c.engenheiros)=0 and #(c.pintores)=0)*/
 }
 
 -------------------------------------ASSERTS-------------------------------------
@@ -138,16 +140,23 @@ assert contratoTest{
 }
 
 assert construcaoTest{
-	// toda construcao possui pelo menos uma equipe de pedreiros trabalhando	
+	// sempre as construcoes tem, pelo menos, uma equipe de pedreiros
 	all c: Construcao | #(c.pedreiros) > 0
 	
+	//os dois engenheiros trabalham sempre juntos
+		//somente uma construcao possui uma equipe de engenheiros
+		one c:Construcao | #(c.engenheiros)=1
+		//existe apenas uma equipe de engenheiros
+		#(EquipeEngenheiros) = 1
+		//a unica equipe de engenheiros existente eh composta por um engenheiro civil e um eletricista
+		all ee:EquipeEngenheiros | #(ee.civil) = 1 and #(ee.eletricista) = 1
+
+	//a equipe de pintores nunca trabalha na mesma obra que os engenheiros
+	all c:Construcao | ( #(c.engenheiros)=1 and #(c.pintores)=0) 
+				or (#(c.engenheiros)=0 and #(c.pintores)=1 )
+				or (#(c.engenheiros)=0 and #(c.pintores)=0)
 }
 
-
-
-assert peloMenosUmaEqPedreirosPorObra{
-	
-}
 
 
 -------------------------------------MAIN-------------------------------------
@@ -156,6 +165,8 @@ assert peloMenosUmaEqPedreirosPorObra{
 check construtoraTest for 10
 
 check contratoTest for 10
+
+check construcaoTest for 10
 
 
 pred show(){}

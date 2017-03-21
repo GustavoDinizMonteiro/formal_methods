@@ -29,7 +29,7 @@ Cliente: Gileade
 
 module construtora
 
-///////////////////////////////////////////////.....ASSINATURAS......///////////////////////////////////////////////
+-------------------------------------ASSINATURAS-------------------------------------
 one sig Construtora {
 	contratos : set Contrato,
 	equipePedreiros : some EquipePedreiros,
@@ -61,7 +61,7 @@ abstract sig Equipe {}
 sig EquipePedreiros extends Equipe {}
 one sig EquipePintores extends Equipe {}
 
-///////////////////////////////////////////////.....FATOS......///////////////////////////////////////////////
+-------------------------------------FATOS-------------------------------------
 
 fact {
 	all c : Construtora | #(c.contratos) = 3
@@ -100,9 +100,9 @@ fact {
 				or (#(c.engenheiros)=0 and #(c.pintores)=0)
 }
 
-///////////////////////////////////////////////.....ASSERTS......///////////////////////////////////////////////
+-------------------------------------ASSERTS-------------------------------------
 
-assert contrutoraTest{
+assert construtoraTest{
 	// Só existe uma construtora.
 	#(Construtora) = 1
 
@@ -120,33 +120,42 @@ assert contrutoraTest{
 
 	//A construtora conta com 1 equipe de pintores.
 	all c: Construtora | #(c.equipePintores) = 1
-
 }
 
-// toda obra possui pelo menos uma equipe de pedreiros trabalhando
-assert peloMenosUmaEqPedreirosPorObra{
+
+assert contratoTest{
+	// Existem tres contratos
+	#(Contrato) = 3
+
+	//Haverá um contrato para construção de um prédio.
+	#(Predio) = 1
+
+	//Haverá um contrato para construção de um condomínio popular.
+	#(CondominioPopular) = 1
+
+	//Haverá um contrato para construção de um estádio de futebol.
+	#(Estadio) = 1
+}
+
+assert construcaoTest{
+	// toda construcao possui pelo menos uma equipe de pedreiros trabalhando	
 	all c: Construcao | #(c.pedreiros) > 0
+	
 }
 
 
 
-
-/*
-Haverá um contrato para construção de um prédio.
-Haverá um contrato para construção de um condomínio popular.
-Haverá um contrato para construção de um estádio de futebol.
-A construtora conta com 4 equipes de pedreiros.
-A construtora conta com 1 engenheiro civil
-A construtora conta com 1 engenheiro eletricista.
-A construtora conta com 1 equipe de pintores.
-*/
-
-///////////////////////////////////////////////.....MAIN......///////////////////////////////////////////////
+assert peloMenosUmaEqPedreirosPorObra{
+	
+}
 
 
-check contrutoraTest for 10
+-------------------------------------MAIN-------------------------------------
 
-check peloMenosUmaEqPedreirosPorObra for 10
+
+check construtoraTest for 10
+
+check contratoTest for 10
 
 
 pred show(){}

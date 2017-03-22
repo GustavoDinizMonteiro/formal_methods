@@ -48,7 +48,7 @@ sig Contrato {
 
 abstract sig Construcao {
 	pintores : EquipePintores lone -> Time,
-	pedreiros : some EquipePedreiros,
+	pedreiros : EquipePedreiros some -> Time,
 	engenheiros: EquipeEngenheiros lone -> Time	
 }
 one sig Predio, CondominioPopular,  Estadio extends Construcao {}
@@ -81,7 +81,7 @@ fact {
 fact {
 	#(EquipePedreiros) = 4
 	all e:EquipePedreiros | one e.~equipePedreiros
-	all e:EquipePedreiros | one e.~pedreiros
+	--all e:EquipePedreiros | one e.~pedreiros
 }
 
 fact {
@@ -92,33 +92,24 @@ fact {
 fact {
 	one e:EquipePintores | one e.~equipePintores
 	all t: Time - first | (one e: EquipePintores | one e.~(pintores.t))
-	all t: Time - first | (one e:  | one e.~(engenheiros.t))
-	--one e:EquipePintores | one e.~pintores
-}
-
-
-fact {
-	--one e:EquipeEngenheiros | one e.~engenheiros
+	all t: Time - first | (one e: EquipeEngenheiros | one e.~(engenheiros.t))
+	all t: Time - first | (all e: EquipePedreiros | one e.~(pedreiros.t))
 }
 
 fact {
 	no c:Construcao | #(c.engenheiros) > 0 and #(c.pintores) > 0
 }
 
-fact{
-	//para quaisquer duas construcoes diferentes no mesmo tempo, se uma equipe de pintores estiver em uma determinada construcao, 
-	// entao ela nao podera estar na outra construcao.
-	all c1 : Construcao, c2: Construcao - c1, e: EquipePintores, t: Time | (e in c1.pintores.t) => (e !in c2.pintores.t) 
-	all c1 : Construcao, c2: Construcao - c1, e: EquipeEngenheiros, t: Time | (e in c1.engenheiros.t) => (e !in c2.engenheiros.t)  
-}
 
 
 fact traces {
 	init[first]
 	all pre: Time-last | let pos = pre.next |
 
-	some c:Construcao, ep: EquipePintores, ee:EquipeEngenheiros | 
-		addEqPintores[c, ep, pre, pos] or addEqEngenheiros[c, ee, pre, pos]
+	some c1:Construcao, c2: Construcao - c1, ep: EquipePintores, ee:EquipeEngenheiros | 
+		addEqPintores[c1, ep, pre, pos] or 
+		addEqEngenheiros[c1, ee, pre, pos] or 
+		trocaEqPedreiros[c1, c2, pre, pos]
 
 }
 
@@ -139,8 +130,10 @@ pred addEqEngenheiros[c:Construcao, ee:EquipeEngenheiros, t: Time, t':Time]{
 	(c.engenheiros).t' = (c.engenheiros).t + ee
 }
 
-
-
+pred trocaEqPedreiros[c1:Construcao, c2:Construcao, t: Time, t':Time]{
+	c1.pedreiros.t' = c2.pedreiros.t
+	c2.pedreiros.t' = c1.pedreiros.t 
+}
 
 
 -------------------------------------ASSERTS-------------------------------------
@@ -182,7 +175,7 @@ assert contratoTest{
 
 assert construcaoTest{
 	// sempre as construcoes tem, pelo menos, uma equipe de pedreiros
-	all c: Construcao | #(c.pedreiros) > 0
+	all c: Construcao, t: Time | #(c.pedreiros.t) > 0
 	
 	//os dois engenheiros trabalham sempre juntos
 		//somente uma construcao possui uma equipe de engenheiros

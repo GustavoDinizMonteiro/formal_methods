@@ -94,6 +94,7 @@ fact {
 	--one e:EquipePintores | one e.~pintores
 }
 
+
 fact {
 	--one e:EquipeEngenheiros | one e.~engenheiros
 }
@@ -124,7 +125,17 @@ pred init [t: Time]{
 
 pred addEqPintores[c:Construcao, ep:EquipePintores, t: Time, t':Time]{
 	ep !in (c.pintores).t
+	no (Construcao.pintores).t
+
 	(c.pintores).t' = (c.pintores).t + ep
+	one (Construcao.pintores).t'
+}
+
+pred garanteEqPintores[t: Time, t':Time]{
+
+	#(getPintores[Predio, CondominioPopular, Estadio, t]) = 1
+	#(getPintores[Predio, CondominioPopular, Estadio, t']) = 1
+
 }
 
 pred addEqEngenheiros[c:Construcao, ee:EquipeEngenheiros, t: Time, t':Time]{
@@ -132,7 +143,11 @@ pred addEqEngenheiros[c:Construcao, ee:EquipeEngenheiros, t: Time, t':Time]{
 	(c.engenheiros).t' = (c.engenheiros).t + ee
 }
 
-
+-------------------------------------FUNCTIONS-------------------------------------
+// retorna todos os pintores atrelados a obras
+fun getPintores[c1: Construcao,c2: Construcao,c3: Construcao, t: Time] : set EquipePintores{
+	c1.pintores.t + c2.pintores.t + c3.pintores.t
+}
 
 
 

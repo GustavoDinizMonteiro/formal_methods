@@ -91,8 +91,11 @@ fact {
 
 fact {
 	one e:EquipePintores | one e.~equipePintores
+	all t: Time - first | (one e: EquipePintores | one e.~(pintores.t))
 	--one e:EquipePintores | one e.~pintores
 }
+//PARA OBTER TODOS OS TEMPOS SEGUINTES, BOM PRA DEFINIR ALGO QUE VAI ACONTECER APOS AQUELE TEMPO
+//t.^next
 
 
 fact {
@@ -120,15 +123,15 @@ fact traces {
 -------------------------------------PREDICADOS-------------------------------------
 
 pred init [t: Time]{
-	no (Construcao.pintores).t
+	all c: Construcao | no (c.pintores).t
 }
 
 pred addEqPintores[c:Construcao, ep:EquipePintores, t: Time, t':Time]{
 	ep !in (c.pintores).t
-	no (Construcao.pintores).t
+--	no (Construcao.pintores).t
 
 	(c.pintores).t' = (c.pintores).t + ep
-	one (Construcao.pintores).t'
+--	one (Construcao.pintores).t'
 }
 
 pred garanteEqPintores[t: Time, t':Time]{
@@ -211,11 +214,11 @@ assert construcaoTest{
 -------------------------------------MAIN-------------------------------------
 
 
-check construtoraTest for 10
+--check construtoraTest for 10
 
-check contratoTest for 10
+--check contratoTest for 10
 
-check construcaoTest for 10
+--check construcaoTest for 10
 
 
 pred show(){}

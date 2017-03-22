@@ -100,17 +100,13 @@ fact {
 
 fact {
 	no c:Construcao | #(c.engenheiros) > 0 and #(c.pintores) > 0
-/*
-	all c:Construcao | (one c.engenheiros and #(c.pintores)=0) 
-				or (#(c.engenheiros)=0 and one c.pintores)
-				or (#(c.engenheiros)=0 and #(c.pintores)=0)
-*/
 }
 
 fact{
 	//para quaisquer duas construcoes diferentes no mesmo tempo, se uma equipe de pintores estiver em uma determinada construcao, 
 	// entao ela nao podera estar na outra construcao.
-	all c1 : Construcao, c2: Construcao - c1, e: EquipePintores, t: Time | (e in c1.pintores.t) => (e !in c2.pintores.t)  
+	all c1 : Construcao, c2: Construcao - c1, e: EquipePintores, t: Time | (e in c1.pintores.t) => (e !in c2.pintores.t) 
+	all c1 : Construcao, c2: Construcao - c1, e: EquipeEngenheiros, t: Time | (e in c1.engenheiros.t) => (e !in c2.engenheiros.t)  
 }
 
 
@@ -118,15 +114,16 @@ fact traces {
 	init[first]
 	all pre: Time-last | let pos = pre.next |
 
-	some c:Construcao, ep: EquipePintores | 
-		addEqPintores[c, ep, pre, pos]
+	some c:Construcao, ep: EquipePintores, ee:EquipeEngenheiros | 
+		addEqPintores[c, ep, pre, pos] or addEqEngenheiros[c, ee, pre, pos]
 
 }
 
 -------------------------------------PREDICADOS-------------------------------------
 
 pred init [t: Time]{
-	no (Construcao.pintores).t
+	one (Construcao.pintores).t
+	one (Construcao.engenheiros).t
 }
 
 pred addEqPintores[c:Construcao, ep:EquipePintores, t: Time, t':Time]{
@@ -186,16 +183,17 @@ assert construcaoTest{
 	
 	//os dois engenheiros trabalham sempre juntos
 		//somente uma construcao possui uma equipe de engenheiros
-		one c:Construcao | #(c.engenheiros)=1
+		all c:Construcao, t: Time | #(c.engenheiros.t)=1 or #(c.engenheiros.t)=0 
 		//existe apenas uma equipe de engenheiros
 		#(EquipeEngenheiros) = 1
 		//a unica equipe de engenheiros existente eh composta por um engenheiro civil e um eletricista
 		all ee:EquipeEngenheiros | #(ee.civil) = 1 and #(ee.eletricista) = 1
 
 	//a equipe de pintores nunca trabalha na mesma obra que os engenheiros
-	all c:Construcao | ( #(c.engenheiros)=1 and #(c.pintores)=0) 
-				or (#(c.engenheiros)=0 and #(c.pintores)=1 )
-				or (#(c.engenheiros)=0 and #(c.pintores)=0)
+	all c:Construcao, t: Time | ( #(c.engenheiros.t)=1 and #(c.pintores.t)=0) 
+				or (#(c.engenheiros.t)=0 and #(c.pintores.t)=1 )
+				or (#(c.engenheiros.t)=0 and #(c.pintores.t)=0)
+
 }
 
 

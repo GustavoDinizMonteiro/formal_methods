@@ -91,8 +91,11 @@ fact {
 
 fact {
 	one e:EquipePintores | one e.~equipePintores
+	all t: Time - first | (one e: EquipePintores | one e.~(pintores.t))
+	all t: Time - first | (one e:  | one e.~(engenheiros.t))
 	--one e:EquipePintores | one e.~pintores
 }
+
 
 fact {
 	--one e:EquipeEngenheiros | one e.~engenheiros
@@ -122,8 +125,8 @@ fact traces {
 -------------------------------------PREDICADOS-------------------------------------
 
 pred init [t: Time]{
-	one (Construcao.pintores).t
-	one (Construcao.engenheiros).t
+	all c: Construcao | no (c.pintores).t 
+	all c: Construcao | no (c.engenheiros).t 
 }
 
 pred addEqPintores[c:Construcao, ep:EquipePintores, t: Time, t':Time]{

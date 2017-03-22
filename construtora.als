@@ -121,22 +121,37 @@ pred init [t: Time]{
 }
 
 pred addEqPintores[c:Construcao, ep:EquipePintores, t: Time, t':Time]{
-	ep !in (c.pintores).t
-	(c.pintores).t' = (c.pintores).t + ep
+	ep !in getPintores[c, t]
+	(c.pintores).t' = getPintores[c, t] + ep
 }
 
 pred addEqEngenheiros[c:Construcao, ee:EquipeEngenheiros, t: Time, t':Time]{
-	ee !in (c.engenheiros).t
-	(c.engenheiros).t' = (c.engenheiros).t + ee
+	ee !in getEngenheiros[c, t]
+	(c.engenheiros).t' = getEngenheiros[c, t] + ee
 }
 
 pred trocaEqPedreiros[c1:Construcao, c2:Construcao, t: Time, t':Time]{
-	c1.pedreiros.t' = c2.pedreiros.t
-	c2.pedreiros.t' = c1.pedreiros.t 
+	c1.pedreiros.t' =  getPedreiros[c2, t]
+	c2.pedreiros.t' = getPedreiros[c1, t]
 }
 
 
+-------------------------------------FUNCTIONS-------------------------------------
+
+fun getPedreiros[c1: Construcao, t: Time] : set EquipePedreiros{
+	c1.pedreiros.t
+}
+
+fun getEngenheiros[c1: Construcao, t: Time] : set EquipeEngenheiros{
+	c1.engenheiros.t
+}
+
+fun getPintores[c1: Construcao, t: Time] : set EquipePintores{
+	c1.pintores.t
+}
+
 -------------------------------------ASSERTS-------------------------------------
+
 
 assert construtoraTest{
 	// Só existe uma construtora.

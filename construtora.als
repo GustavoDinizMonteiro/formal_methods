@@ -107,6 +107,13 @@ fact {
 */
 }
 
+fact{
+	//para quaisquer duas construcoes diferentes no mesmo tempo, se uma equipe de pintores estiver em uma determinada construcao, 
+	// entao ela nao podera estar na outra construcao.
+	all c1 : Construcao, c2: Construcao - c1, e: EquipePintores, t: Time | (e in c1.pintores.t) => (e !in c2.pintores.t)  
+}
+
+
 fact traces {
 	init[first]
 	all pre: Time-last | let pos = pre.next |
@@ -205,4 +212,4 @@ check construcaoTest for 10
 
 pred show(){}
 
-run show for 10
+run show for 15

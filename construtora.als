@@ -67,36 +67,49 @@ one sig EquipePintores extends Equipe {}
 
 -------------------------------------FATOS-------------------------------------
 
-fact {
+fact invariantesConstrutora	{
+	// Toda construtora possui 3 contratos
 	all c : Construtora | #(c.contratos) = 3
+	// Todos os contratos estão atrelados a uma unica construtora
 	all c : Contrato | one c.~contratos	
 }
 
-fact {
+fact invariantesContrato{
+	// Todos os predios estão atrelados a apenas um contrato
 	all c:Predio | one c.~construcao
+	// Todos os condominios populares estão atrelados a apenas um contrato
 	all c:CondominioPopular | one c.~construcao
+	// Todos os estadios estão atrelados a apenas um contrato
 	all c:Estadio | one c.~construcao
 }
 
-fact {
+fact invariantesEquipePedreiros{
+	// Existem apenas 4 equipes de pedreiros
 	#(EquipePedreiros) = 4
+	// Todos as equipes de pedreiros estão atreladas a apenas uma construtora
 	all e:EquipePedreiros | one e.~equipePedreiros
-	--all e:EquipePedreiros | one e.~pedreiros
+	// Em qualquer tempo, para qualquer equipe de pedreiros, uma equipe estará atrelada a apenas uma construcao
+	all t: Time | (all e: EquipePedreiros | one e.~(pedreiros.t))
 }
 
-fact {
-	all e:EngenheiroEletricista | one e.~engenheiroEletricista
+fact invariantesEquipeEngenheiros{
+	// Todos os engenheiros civis estão atrelados a apenas uma construtora	
 	all e:EngenheiroCivil | one e.~engenheiroCivil
-}
-
-fact {
-	one e:EquipePintores | one e.~equipePintores
-	all t: Time - first | (one e: EquipePintores | one e.~(pintores.t))
+	// Todos os engenheiros eletricistas estão atrelados a apenas uma construtora	
+	all e:EngenheiroEletricista | one e.~engenheiroEletricista
+	// Em qualquer tempo, para qualquer equipe de engenheiros, uma equipe estará atrelada a apenas uma construcao
 	all t: Time - first | (one e: EquipeEngenheiros | one e.~(engenheiros.t))
-	all t: Time - first | (all e: EquipePedreiros | one e.~(pedreiros.t))
 }
 
-fact {
+fact invariantesEquipePintores{
+	// Todas as equipes de pintores estão atreladas a apenas uma construtora
+	one e:EquipePintores | one e.~equipePintores
+	// Em qualquer tempo, para qualquer equipe de pintores, uma equipe estará atrelada a apenas uma construcao
+	all t: Time - first | (one e: EquipePintores | one e.~(pintores.t))
+}
+
+fact relacaoPintoresEEngenheiros{
+	// Não há construcao que possua engenheiros e pintores
 	no c:Construcao | #(c.engenheiros) > 0 and #(c.pintores) > 0
 }
 
@@ -104,39 +117,47 @@ fact {
 
 fact traces {
 	init[first]
-	all pre: Time-last | let pos = pre.next |
+	all pre: Time-last | let pos = pre.next | 
 
 	some c1:Construcao, c2: Construcao - c1, ep: EquipePintores, ee:EquipeEngenheiros | 
-		addEqPintores[c1, ep, pre, pos] or 
-		addEqEngenheiros[c1, ee, pre, pos] or 
-		trocaEqPedreiros[c1, c2, pre, pos]
+		alocaEqPintores[c1, ep, pre, pos] or 
+		desalocaEqPintores[c1, ep, pre, pos] or 
+		alocaEqEngenheiros[c1, ee, pre, pos] or 
+		variaEqPedreiros[c1, c2, pre, pos]
 
 }
 
 -------------------------------------PREDICADOS-------------------------------------
 
 pred init [t: Time]{
+	// No tempo t, a equipe de pintores não está atrelada a qualquer obra
 	all c: Construcao | no (c.pintores).t 
-	all c: Construcao | no (c.engenheiros).t 
+	// No tempo t, a equipe de engenheiros não está atrelada a qualquer obra
+	all c: Construcao | no (c.engenheiros).t
 }
 
-pred addEqPintores[c:Construcao, ep:EquipePintores, t: Time, t':Time]{
+pred alocaEqPintores[c:Construcao, ep:EquipePintores, t: Time, t':Time]{
 	ep !in getPintores[c, t]
 	(c.pintores).t' = getPintores[c, t] + ep
 }
 
-pred addEqEngenheiros[c:Construcao, ee:EquipeEngenheiros, t: Time, t':Time]{
+pred desalocaEqPintores[c:Construcao, ep:EquipePintores, t: Time, t':Time]{
+	ep in getPintores[c, t]
+	(c.pintores).t' = getPintores[c, t] - ep
+}
+
+pred alocaEqEngenheiros[c:Construcao, ee:EquipeEngenheiros, t: Time, t':Time]{
 	ee !in getEngenheiros[c, t]
 	(c.engenheiros).t' = getEngenheiros[c, t] + ee
 }
 
-pred trocaEqPedreiros[c1:Construcao, c2:Construcao, t: Time, t':Time]{
+pred variaEqPedreiros[c1:Construcao, c2:Construcao, t: Time, t':Time]{
 	c1.pedreiros.t' =  getPedreiros[c2, t]
 	c2.pedreiros.t' = getPedreiros[c1, t]
 }
 
 
--------------------------------------FUNCTIONS-------------------------------------
+-------------------------------------FUNÇÕES-------------------------------------
 
 fun getPedreiros[c1: Construcao, t: Time] : set EquipePedreiros{
 	c1.pedreiros.t
@@ -221,4 +242,4 @@ check construcaoTest for 10
 
 pred show(){}
 
-run show for 15
+run show for 30
